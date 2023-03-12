@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 import 'package:skillbox_17_8/ui/navigation/main_navigation.dart';
 import 'package:skillbox_17_8/ui/theme/theme.dart';
 
+import '../data/auth_controller.dart';
 import '../data/fake_data.dart';
 
 class PurchasesListPage extends StatefulWidget {
@@ -17,6 +19,8 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = context.read<AuthController>();
+    print('на экрпне юзер ${authProvider.user?.displayName}');
     return SafeArea(
         child: Scaffold(
       floatingActionButtonLocation:
@@ -43,6 +47,8 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                 CircleAvatar(
                   radius: avatarRadius,
                   backgroundColor: AppColor.orange,
+                  backgroundImage: NetworkImage(
+                      authProvider.user?.photoURL ?? 'assets/no_user.jpg'),
                 ),
                 SizedBox(width: 16),
                 Expanded(
@@ -57,7 +63,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                             .copyWith(color: AppColor.backColor),
                       ),
                       Text(
-                        'Пользователь',
+                        authProvider.user?.displayName ?? 'Пользователь',
                         style: Theme.of(context)
                             .textTheme
                             .headlineLarge!
@@ -80,7 +86,12 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                             ),
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () async {
+                              await authProvider.signOut();
+                              print('ВЫШЛИ');
+                              Navigator.of(context)
+                                  .pushReplacementNamed(AppRouteName.login);
+                            },
                             icon: Icon(
                               Icons.exit_to_app_outlined,
                               color: AppColor.backColor,
