@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../data/auth_controller.dart';
+import '../states/auth_state.dart';
 import '../models/necessary_details_model.dart';
 import 'navigation/main_navigation.dart';
 import 'theme/theme.dart';
@@ -15,8 +15,7 @@ class App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<NecessaryDetailsModel>(
             create: (context) => NecessaryDetailsModel()),
-        ChangeNotifierProvider<AuthController>(
-            create: (context) => AuthController()),
+        ChangeNotifierProvider<AuthState>(create: (context) => AuthState()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

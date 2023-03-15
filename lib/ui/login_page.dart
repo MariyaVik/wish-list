@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skillbox_17_8/ui/navigation/main_navigation.dart';
 
-import '../data/auth_controller.dart';
+import '../states/auth_state.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = context.read<AuthController>();
+    final authProvider = context.read<AuthState>();
     return SafeArea(
         child: Scaffold(
       body: Center(

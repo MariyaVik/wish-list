@@ -8,5 +8,5 @@ class Purchase {
     required this.name,
     required this.id,
     List<Thing>? things,
-  }) : things = things ?? List.empty(growable: true);
+  }) : things = things ?? [];
 }
