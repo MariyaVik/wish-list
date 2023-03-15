@@ -9,6 +9,7 @@ class AuthState extends ChangeNotifier {
   final FirebaseAuth authInst = FirebaseAuth.instance;
   User? user;
   List listPurchases = [];
+  Map purchaseDetails = {};
 
   Future<void> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -96,4 +97,47 @@ class AuthState extends ChangeNotifier {
       throw 'Войдите в аккаунт';
     }
   }
+
+  Future<void> getPurchaseDetails(Map purchase) async {
+    if (user != null) {
+      final purchaseDoc = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.email)
+          .collection('Purchases')
+          .doc(purchase['id'].toString());
+      DocumentSnapshot doc = await purchaseDoc.get();
+
+      if (!doc.exists) {
+        purchaseDoc.set({
+          'id': purchase['id'],
+          'name': purchase['name'],
+          'things': [],
+        });
+      }
+      await purchaseDoc.get().then(
+        (DocumentSnapshot doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          purchaseDetails = data;
+          print(purchaseDetails);
+        },
+        onError: (e) => print("Error getting document: $e"),
+      );
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
+
+  // Future<void> addPurchaseDetails(Map purchase) async {
+  //   if (user != null) {
+  //     final userDoc =
+  //         FirebaseFirestore.instance.collection('users').doc(user?.email);
+  //     await userDoc.collection('Purchases').add({
+  //       'id': purchase['id'],
+  //       'name': purchase['name'],
+  //       'things': [],
+  //     });
+  //   } else {
+  //     throw 'Войдите в аккаунт';
+  //   }
+  // }
 }

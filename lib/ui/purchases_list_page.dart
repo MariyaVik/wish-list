@@ -124,6 +124,8 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                         onTap: () {
                           print(
                               'id списка ${authProvider.listPurchases[index]['id']}');
+                          authProvider.getPurchaseDetails(
+                              authProvider.listPurchases[index]);
                           // Navigator.of(context).pushNamed(
                           //     AppRouteName.necDetails,
                           //     arguments: purchases[index].id);
