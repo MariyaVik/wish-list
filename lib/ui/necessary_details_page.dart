@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 import 'package:skillbox_17_8/models/thing.dart';
 import 'package:skillbox_17_8/ui/theme/theme.dart';
 
-import '../data/fake_data.dart';
+import '../states/auth_state.dart';
 
 class NecessaryDetailsPage extends StatefulWidget {
-  final int id;
-  const NecessaryDetailsPage({required this.id, super.key});
+  final Map currentPurchase;
+  const NecessaryDetailsPage({required this.currentPurchase, super.key});
 
   @override
   State<NecessaryDetailsPage> createState() => _NecessaryDetailsPageState();
@@ -15,22 +16,32 @@ class NecessaryDetailsPage extends StatefulWidget {
 
 class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
   @override
+  void initState() {
+    super.initState();
+    // context.read<AuthState>().getPurchaseDetails(widget.currentPurchase);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final authProvider = context.read<AuthState>();
+    print(authProvider.purchaseDetails);
     return SafeArea(
         child: Scaffold(
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
       appBar: AppBar(
-        title: Text(purchases[widget.id].name),
+        title: Text(authProvider.purchaseDetails['name']),
       ),
       body: ListView.builder(
-          itemCount: purchases[widget.id].things.length,
+          itemCount:
+              context.watch<AuthState>().purchaseDetails['things'].length,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                purchases[widget.id].things[index].done =
-                    !purchases[widget.id].things[index].done;
-                setState(() {});
+                print('ВЫПОЛНИЛИ ИЛИ НЕТ');
+                // purchases[widget.id].things[index].done =
+                //     !purchases[widget.id].things[index].done;
+                // setState(() {});
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -41,8 +52,8 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        editThingDialog(
-                            index); // ОБНОВЛЯТЬ-----------------------------------------------------------------------
+                        // editThingDialog(
+                        //     index); // ОБНОВЛЯТЬ-----------------------------------------------------------------------
                       },
                       icon: Icons.edit,
                       backgroundColor: AppColor.orangeLight,
@@ -53,8 +64,8 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                       //     topLeft: Radius.circular(8),
                       //     bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        purchases[widget.id].things.removeAt(index);
-                        setState(() {});
+                        // purchases[widget.id].things.removeAt(index);
+                        // setState(() {});
                       },
                       icon: Icons.delete,
                       backgroundColor: AppColor.error,
@@ -66,24 +77,32 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                       margin: EdgeInsets.symmetric(horizontal: 8),
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: purchases[widget.id].things[index].done
+                          color: context
+                                  .watch<AuthState>()
+                                  .purchaseDetails['things'][index]['done']
                               ? AppColor.green
                               : null,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColor.greyLight)),
                       child: ListTile(
                         title: Text(
-                          purchases[widget.id].things[index].name,
-                          style: purchases[widget.id].things[index].done
+                          context.watch<AuthState>().purchaseDetails['things']
+                              [index]['name'],
+                          style: context
+                                  .watch<AuthState>()
+                                  .purchaseDetails['things'][index]['done']
                               ? TextStyle(
                                   decoration: TextDecoration.lineThrough,
                                 )
                               : null,
                         ),
-                        subtitle: Text(
-                            purchases[widget.id].things[index].description),
+                        subtitle: Text(context
+                            .watch<AuthState>()
+                            .purchaseDetails['things'][index]['description']),
                         trailing: CircleAvatar(
-                          child: Text(purchases[widget.id].things[index].who),
+                          child: Text(context
+                              .watch<AuthState>()
+                              .purchaseDetails['things'][index]['who']),
                         ),
                       )),
                 ),
@@ -103,16 +122,16 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
     showDialog(
         context: context,
         builder: (context) {
-          return AddThingWidget(things: purchases[widget.id].things);
+          return AddThingWidget();
         });
   }
 
   void editThingDialog(int index) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return EditThingWidget(thing: purchases[widget.id].things[index]);
-        });
+    // showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return EditThingWidget(thing: purchases[widget.id].things[index]);
+    //     });
   }
 }
 
@@ -201,8 +220,7 @@ class _EditThingWidgetState extends State<EditThingWidget> {
 }
 
 class AddThingWidget extends StatefulWidget {
-  List<Thing> things;
-  AddThingWidget({required this.things, super.key});
+  AddThingWidget({super.key});
 
   @override
   State<AddThingWidget> createState() => _AddThingWidgetState();
@@ -268,10 +286,13 @@ class _AddThingWidgetState extends State<AddThingWidget> {
   }
 
   void addThing() {
-    widget.things.add(Thing(
-        name: nameController.text,
-        description: commentController.text,
-        who: whoController.text));
+    final authProvider = context.read<AuthState>();
+    authProvider.addPurchaseDetails(
+        Thing(
+            name: nameController.text,
+            description: commentController.text,
+            who: whoController.text),
+        authProvider.purchaseDetails['id']);
     Navigator.of(context).pop();
   }
 }

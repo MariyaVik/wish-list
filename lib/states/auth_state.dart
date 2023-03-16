@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../models/purchase.dart';
+import '../models/thing.dart';
 
 class AuthState extends ChangeNotifier {
   final FirebaseAuth authInst = FirebaseAuth.instance;
+  final CollectionReference collectionUsers =
+      FirebaseFirestore.instance.collection('users');
   User? user;
   List listPurchases = [];
   Map purchaseDetails = {};
@@ -48,8 +51,7 @@ class AuthState extends ChangeNotifier {
   }
 
   Future<void> saveUser(GoogleSignInAccount account) async {
-    final userDoc =
-        FirebaseFirestore.instance.collection('users').doc(account.email);
+    final userDoc = collectionUsers.doc(account.email);
     DocumentSnapshot doc = await userDoc.get();
     if (!doc.exists) {
       userDoc.set({
@@ -65,8 +67,7 @@ class AuthState extends ChangeNotifier {
 
   Future<void> getPurchase() async {
     if (user != null) {
-      final userDoc =
-          FirebaseFirestore.instance.collection('users').doc(user?.email);
+      final userDoc = collectionUsers.doc(user?.email);
       userDoc.get().then(
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
@@ -88,8 +89,7 @@ class AuthState extends ChangeNotifier {
       }
 
       listPurchases.add({'id': currentId, 'name': name});
-      final userDoc =
-          FirebaseFirestore.instance.collection('users').doc(user?.email);
+      final userDoc = collectionUsers.doc(user?.email);
       userDoc.update({'purchases': listPurchases});
       getPurchase();
       notifyListeners();
@@ -100,8 +100,7 @@ class AuthState extends ChangeNotifier {
 
   Future<void> getPurchaseDetails(Map purchase) async {
     if (user != null) {
-      final purchaseDoc = FirebaseFirestore.instance
-          .collection('users')
+      final purchaseDoc = collectionUsers
           .doc(user?.email)
           .collection('Purchases')
           .doc(purchase['id'].toString());
@@ -127,17 +126,28 @@ class AuthState extends ChangeNotifier {
     }
   }
 
-  // Future<void> addPurchaseDetails(Map purchase) async {
-  //   if (user != null) {
-  //     final userDoc =
-  //         FirebaseFirestore.instance.collection('users').doc(user?.email);
-  //     await userDoc.collection('Purchases').add({
-  //       'id': purchase['id'],
-  //       'name': purchase['name'],
-  //       'things': [],
-  //     });
-  //   } else {
-  //     throw 'Войдите в аккаунт';
-  //   }
-  // }
+  Future<void> addPurchaseDetails(Thing thing, int id) async {
+    if (user != null) {
+      //   int currentId = 0;
+      //   if (listPurchases.isNotEmpty) {
+      //     currentId = listPurchases.last['id'] + 1;
+      //   }
+
+      purchaseDetails['things'].add({
+        'name': thing.name,
+        'description': thing.description,
+        'who': thing.who,
+        'done': thing.done
+      });
+      final userDoc = collectionUsers
+          .doc(user?.email)
+          .collection('Purchases')
+          .doc(id.toString());
+      userDoc.update({'things': purchaseDetails['things']});
+      // getPurchase();
+      notifyListeners();
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
 }

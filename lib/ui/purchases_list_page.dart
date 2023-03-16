@@ -6,7 +6,6 @@ import 'package:skillbox_17_8/ui/navigation/main_navigation.dart';
 import 'package:skillbox_17_8/ui/theme/theme.dart';
 
 import '../states/auth_state.dart';
-import '../data/fake_data.dart';
 
 class PurchasesListPage extends StatefulWidget {
   const PurchasesListPage({super.key});
@@ -68,7 +67,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: authProvider.getPurchase,
+                            onPressed: () {},
                             icon: Icon(
                               Icons.notifications,
                               color: AppColor.backColor,
@@ -121,14 +120,14 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                         )
                       ]),
                       child: ListTile(
-                        onTap: () {
+                        onTap: () async {
                           print(
                               'id списка ${authProvider.listPurchases[index]['id']}');
-                          authProvider.getPurchaseDetails(
+                          await authProvider.getPurchaseDetails(
                               authProvider.listPurchases[index]);
-                          // Navigator.of(context).pushNamed(
-                          //     AppRouteName.necDetails,
-                          //     arguments: purchases[index].id);
+                          Navigator.of(context).pushNamed(
+                              AppRouteName.necDetails,
+                              arguments: authProvider.listPurchases[index]);
                         },
                         title: Text(context
                             .watch<AuthState>()
@@ -155,7 +154,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
     await showDialog(
         context: context,
         builder: (context) {
-          return AddPuchaseWidget(purchases: purchases);
+          return AddPuchaseWidget();
         });
     // print('ПЕРЕХОД');
     // Navigator.of(context)
@@ -164,8 +163,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
 }
 
 class AddPuchaseWidget extends StatefulWidget {
-  List<Purchase> purchases;
-  AddPuchaseWidget({required this.purchases, super.key});
+  AddPuchaseWidget({super.key});
 
   @override
   State<AddPuchaseWidget> createState() => _AddPuchaseWidgetState();
