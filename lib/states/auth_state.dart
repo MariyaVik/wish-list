@@ -205,4 +205,25 @@ class AuthState extends ChangeNotifier {
       throw 'Войдите в аккаунт';
     }
   }
+
+  Future<void> deletePurchase(int index) async {
+    if (user != null) {
+      int id = listPurchases[index]['id'];
+
+      listPurchases.removeWhere((element) => element['id'] == id);
+
+      final userDoc = collectionUsers.doc(user?.email);
+      final purchaseDoc = collectionUsers
+          .doc(user?.email)
+          .collection('Purchases')
+          .doc(id.toString());
+
+      purchaseDoc.delete();
+      userDoc.update({'purchases': listPurchases});
+
+      notifyListeners();
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
 }

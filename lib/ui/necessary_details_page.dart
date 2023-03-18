@@ -18,6 +18,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
   @override
   void initState() {
     super.initState();
+    context.read<AuthState>().purchaseDetails = {};
     context.read<AuthState>().getPurchaseDetails(widget.currentId);
   }
 
@@ -30,12 +31,11 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
       appBar: AppBar(
-        title: Text(
-            context.watch<AuthState>().listPurchases[widget.currentId]['name']),
+        title: Text(context.watch<AuthState>().purchaseDetails['name'] ?? ''),
       ),
       body: ListView.builder(
           itemCount:
-              context.watch<AuthState>().purchaseDetails['things'].length,
+              context.watch<AuthState>().purchaseDetails['things']?.length ?? 0,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {

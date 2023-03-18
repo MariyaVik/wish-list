@@ -112,8 +112,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                               topLeft: Radius.circular(8),
                               bottomLeft: Radius.circular(8)),
                           onPressed: (context) {
-                            // purchases.removeAt(index);
-                            // setState(() {});
+                            authProvider.deletePurchase(index);
                           },
                           icon: Icons.delete,
                           backgroundColor: AppColor.error,
