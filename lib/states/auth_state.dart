@@ -189,4 +189,20 @@ class AuthState extends ChangeNotifier {
       throw 'Войдите в аккаунт';
     }
   }
+
+  Future<void> doneThing(int thingIndex) async {
+    if (user != null) {
+      purchaseDetails['things'][thingIndex]['done'] =
+          !purchaseDetails['things'][thingIndex]['done'];
+
+      final id = purchaseDetails['id'].toString();
+
+      final userDoc =
+          collectionUsers.doc(user?.email).collection('Purchases').doc(id);
+      userDoc.update({'things': purchaseDetails['things']});
+      notifyListeners();
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
 }

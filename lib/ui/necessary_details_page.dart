@@ -40,9 +40,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
             return GestureDetector(
               onTap: () {
                 print('ВЫПОЛНИЛИ ИЛИ НЕТ');
-                // purchases[widget.id].things[index].done =
-                //     !purchases[widget.id].things[index].done;
-                // setState(() {});
+                authProvider.doneThing(index);
               },
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -53,8 +51,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        editThingDialog(
-                            index); // ОБНОВЛЯТЬ-----------------------------------------------------------------------
+                        editThingDialog(index);
                       },
                       icon: Icons.edit,
                       backgroundColor: AppColor.orangeLight,
@@ -117,8 +114,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
           }),
       floatingActionButton: FloatingActionButton(
         // mini: true,
-        onPressed:
-            addThingDialog, // ОБНОВЛЯТЬ--------------------------------------------------------------------------------
+        onPressed: addThingDialog,
         child: Icon(Icons.add),
       ),
     ));
