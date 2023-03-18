@@ -7,8 +7,8 @@ import 'package:skillbox_17_8/ui/theme/theme.dart';
 import '../states/auth_state.dart';
 
 class NecessaryDetailsPage extends StatefulWidget {
-  final Map currentPurchase;
-  const NecessaryDetailsPage({required this.currentPurchase, super.key});
+  final int currentId;
+  const NecessaryDetailsPage({required this.currentId, super.key});
 
   @override
   State<NecessaryDetailsPage> createState() => _NecessaryDetailsPageState();
@@ -18,7 +18,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
   @override
   void initState() {
     super.initState();
-    // context.read<AuthState>().getPurchaseDetails(widget.currentPurchase);
+    context.read<AuthState>().getPurchaseDetails(widget.currentId);
   }
 
   @override
@@ -30,7 +30,8 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
       appBar: AppBar(
-        title: Text(authProvider.purchaseDetails['name']),
+        title: Text(
+            context.watch<AuthState>().listPurchases[widget.currentId]['name']),
       ),
       body: ListView.builder(
           itemCount:
@@ -52,8 +53,8 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        // editThingDialog(
-                        //     index); // ОБНОВЛЯТЬ-----------------------------------------------------------------------
+                        editThingDialog(
+                            index); // ОБНОВЛЯТЬ-----------------------------------------------------------------------
                       },
                       icon: Icons.edit,
                       backgroundColor: AppColor.orangeLight,
@@ -64,8 +65,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                       //     topLeft: Radius.circular(8),
                       //     bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        // purchases[widget.id].things.removeAt(index);
-                        // setState(() {});
+                        authProvider.deleteThing(index);
                       },
                       icon: Icons.delete,
                       backgroundColor: AppColor.error,
@@ -100,9 +100,15 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                             .watch<AuthState>()
                             .purchaseDetails['things'][index]['description']),
                         trailing: CircleAvatar(
-                          child: Text(context
-                              .watch<AuthState>()
-                              .purchaseDetails['things'][index]['who']),
+                          child: context
+                                          .watch<AuthState>()
+                                          .purchaseDetails['things'][index]
+                                      ['who'] ==
+                                  null
+                              ? null
+                              : Text(context
+                                  .watch<AuthState>()
+                                  .purchaseDetails['things'][index]['who']),
                         ),
                       )),
                 ),
@@ -127,17 +133,17 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
   }
 
   void editThingDialog(int index) {
-    // showDialog(
-    //     context: context,
-    //     builder: (context) {
-    //       return EditThingWidget(thing: purchases[widget.id].things[index]);
-    //     });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return EditThingWidget(index: index);
+        });
   }
 }
 
 class EditThingWidget extends StatefulWidget {
-  final Thing thing;
-  const EditThingWidget({required this.thing, super.key});
+  final int index;
+  const EditThingWidget({required this.index, super.key});
 
   @override
   State<EditThingWidget> createState() => _EditThingWidgetState();
@@ -153,9 +159,11 @@ class _EditThingWidgetState extends State<EditThingWidget> {
   @override
   void initState() {
     super.initState();
-    nameController.text = widget.thing.name;
-    commentController.text = widget.thing.description;
-    whoController.text = widget.thing.who;
+    final authProvider = context.read<AuthState>();
+    final thing = authProvider.purchaseDetails['things'][widget.index];
+    nameController.text = thing['name'];
+    commentController.text = thing['description'];
+    whoController.text = thing['who'] ?? '';
   }
 
   @override
@@ -211,10 +219,11 @@ class _EditThingWidgetState extends State<EditThingWidget> {
   }
 
   void editThing() {
-    widget.thing
-      ..name = nameController.text
-      ..description = commentController.text
-      ..who = whoController.text;
+    final thing = Thing(
+        name: nameController.text,
+        description: commentController.text,
+        who: whoController.text == '' ? null : whoController.text);
+    context.read<AuthState>().editThing(thing, widget.index);
     Navigator.of(context).pop();
   }
 }
@@ -291,7 +300,7 @@ class _AddThingWidgetState extends State<AddThingWidget> {
         Thing(
             name: nameController.text,
             description: commentController.text,
-            who: whoController.text),
+            who: whoController.text == '' ? null : whoController.text),
         authProvider.purchaseDetails['id']);
     Navigator.of(context).pop();
   }

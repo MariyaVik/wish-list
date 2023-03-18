@@ -24,9 +24,9 @@ class MainNavigation {
                 // place: arg,
                 ));
       case AppRouteName.necDetails:
-        final arg = settings.arguments as Map;
+        final arg = settings.arguments as int;
         return MaterialPageRoute(
-            builder: (context) => NecessaryDetailsPage(currentPurchase: arg));
+            builder: (context) => NecessaryDetailsPage(currentId: arg));
 
       default:
         return MaterialPageRoute(

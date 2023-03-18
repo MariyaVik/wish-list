@@ -122,12 +122,13 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                       child: ListTile(
                         onTap: () async {
                           print(
-                              'id списка ${authProvider.listPurchases[index]['id']}');
-                          await authProvider.getPurchaseDetails(
-                              authProvider.listPurchases[index]);
+                              'id списка ${authProvider.listPurchases[index]['id']} И ПЕРЕХОД СЮДА');
+                          // await authProvider.getPurchaseDetails(
+                          //     authProvider.listPurchases[index]);
                           Navigator.of(context).pushNamed(
                               AppRouteName.necDetails,
-                              arguments: authProvider.listPurchases[index]);
+                              arguments: authProvider.listPurchases[index]
+                                  ['id']);
                         },
                         title: Text(context
                             .watch<AuthState>()
@@ -156,9 +157,10 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
         builder: (context) {
           return AddPuchaseWidget();
         });
-    // print('ПЕРЕХОД');
-    // Navigator.of(context)
-    //     .pushNamed(AppRouteName.necDetails, arguments: purchases.last.id);
+    print(
+        'ПЕРЕХОД ПРИ СОЗДАНИИ В ID ${context.read<AuthState>().purchaseDetails['id']}');
+    Navigator.of(context).pushNamed(AppRouteName.necDetails,
+        arguments: context.read<AuthState>().purchaseDetails['id']);
   }
 }
 

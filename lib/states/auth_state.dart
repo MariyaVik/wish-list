@@ -12,7 +12,7 @@ class AuthState extends ChangeNotifier {
       FirebaseFirestore.instance.collection('users');
   User? user;
   List listPurchases = [];
-  Map purchaseDetails = {};
+  Map<String, dynamic> purchaseDetails = {};
 
   Future<void> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -91,28 +91,34 @@ class AuthState extends ChangeNotifier {
       listPurchases.add({'id': currentId, 'name': name});
       final userDoc = collectionUsers.doc(user?.email);
       userDoc.update({'purchases': listPurchases});
-      getPurchase();
+
+      final purchaseDoc = collectionUsers
+          .doc(user?.email)
+          .collection('Purchases')
+          .doc(currentId.toString());
+
+      purchaseDetails = {
+        'id': currentId,
+        'name': name,
+        'things': [],
+      };
+
+      purchaseDoc.set(purchaseDetails);
+
+      // getPurchase();
       notifyListeners();
     } else {
       throw 'Войдите в аккаунт';
     }
   }
 
-  Future<void> getPurchaseDetails(Map purchase) async {
+  Future<void> getPurchaseDetails(int id) async {
     if (user != null) {
       final purchaseDoc = collectionUsers
           .doc(user?.email)
           .collection('Purchases')
-          .doc(purchase['id'].toString());
-      DocumentSnapshot doc = await purchaseDoc.get();
+          .doc(id.toString());
 
-      if (!doc.exists) {
-        purchaseDoc.set({
-          'id': purchase['id'],
-          'name': purchase['name'],
-          'things': [],
-        });
-      }
       await purchaseDoc.get().then(
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
@@ -121,12 +127,14 @@ class AuthState extends ChangeNotifier {
         },
         onError: (e) => print("Error getting document: $e"),
       );
+
+      notifyListeners();
     } else {
       throw 'Войдите в аккаунт';
     }
   }
 
-  Future<void> addPurchaseDetails(Thing thing, int id) async {
+  Future<void> addPurchaseDetails(Thing thing, int purchaseId) async {
     if (user != null) {
       //   int currentId = 0;
       //   if (listPurchases.isNotEmpty) {
@@ -142,9 +150,40 @@ class AuthState extends ChangeNotifier {
       final userDoc = collectionUsers
           .doc(user?.email)
           .collection('Purchases')
-          .doc(id.toString());
+          .doc(purchaseId.toString());
       userDoc.update({'things': purchaseDetails['things']});
-      // getPurchase();
+      notifyListeners();
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
+
+  Future<void> deleteThing(int index) async {
+    if (user != null) {
+      final id = purchaseDetails['id'].toString();
+      purchaseDetails['things'].removeAt(index);
+      final purchaseDoc =
+          collectionUsers.doc(user?.email).collection('Purchases').doc(id);
+
+      purchaseDoc.update({'things': purchaseDetails['things']});
+
+      notifyListeners();
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
+
+  Future<void> editThing(Thing thing, int thingIndex) async {
+    if (user != null) {
+      purchaseDetails['things'][thingIndex]['name'] = thing.name;
+      purchaseDetails['things'][thingIndex]['description'] = thing.description;
+      purchaseDetails['things'][thingIndex]['who'] = thing.who;
+
+      final id = purchaseDetails['id'].toString();
+
+      final userDoc =
+          collectionUsers.doc(user?.email).collection('Purchases').doc(id);
+      userDoc.update({'things': purchaseDetails['things']});
       notifyListeners();
     } else {
       throw 'Войдите в аккаунт';
