@@ -1,11 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:skillbox_17_8/models/purchase.dart';
-import 'package:skillbox_17_8/ui/navigation/main_navigation.dart';
-import 'package:skillbox_17_8/ui/theme/theme.dart';
 
 import '../states/auth_state.dart';
+import '../states/details_state.dart';
+import '../states/purchases_state.dart';
+import 'navigation/main_navigation.dart';
+import 'theme/theme.dart';
 
 class PurchasesListPage extends StatefulWidget {
   const PurchasesListPage({super.key});
@@ -16,11 +18,13 @@ class PurchasesListPage extends StatefulWidget {
 
 class _PurchasesListPageState extends State<PurchasesListPage> {
   final double avatarRadius = 40;
+  User? currentUser;
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     print('PurchasesListPage : INIT');
+    currentUser = context.read<AuthState>().user;
+    context.read<PurchasesState>().getPurchase(currentUser);
   }
 
   @override
@@ -33,6 +37,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
   Widget build(BuildContext context) {
     print('PurchasesListPage : BUILD');
     final authProvider = context.read<AuthState>();
+    final purchasesProvider = context.read<PurchasesState>();
     print('на экрпне юзер ${authProvider.user?.displayName}');
     return SafeArea(
         child: Scaffold(
@@ -81,7 +86,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                         children: [
                           IconButton(
                             onPressed: () {},
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.notifications,
                               color: AppColor.backColor,
                             ),
@@ -93,7 +98,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                               Navigator.of(context)
                                   .pushReplacementNamed(AppRouteName.login);
                             },
-                            icon: Icon(
+                            icon: const Icon(
                               Icons.exit_to_app_outlined,
                               color: AppColor.backColor,
                             ),
@@ -114,42 +119,41 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
                   color: AppColor.backColor,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: ListView.builder(
-                  itemCount: context.watch<AuthState>().listPurchases.length,
-                  itemBuilder: (BuildContext context, int index) {
-                    return Slidable(
-                      endActionPane:
-                          ActionPane(motion: StretchMotion(), children: [
-                        SlidableAction(
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(8),
-                              bottomLeft: Radius.circular(8)),
-                          onPressed: (context) {
-                            authProvider.deletePurchase(index);
+                child: Consumer<PurchasesState>(builder: (context, purch, _) {
+                  return ListView.builder(
+                    itemCount: purch.listPurchases.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Slidable(
+                        endActionPane:
+                            ActionPane(motion: StretchMotion(), children: [
+                          SlidableAction(
+                            borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(8),
+                                bottomLeft: Radius.circular(8)),
+                            onPressed: (context) {
+                              purchasesProvider.deletePurchase(
+                                  currentUser, index);
+                            },
+                            icon: Icons.delete,
+                            backgroundColor: AppColor.error,
+                          )
+                        ]),
+                        child: ListTile(
+                          onTap: () async {
+                            print(
+                                'id списка ${purchasesProvider.listPurchases[index]['id']} И ПЕРЕХОД СЮДА');
+                            Navigator.of(context).pushNamed(
+                                AppRouteName.necDetails,
+                                arguments: purchasesProvider
+                                    .listPurchases[index]['id']);
                           },
-                          icon: Icons.delete,
-                          backgroundColor: AppColor.error,
-                        )
-                      ]),
-                      child: ListTile(
-                        onTap: () async {
-                          print(
-                              'id списка ${authProvider.listPurchases[index]['id']} И ПЕРЕХОД СЮДА');
-                          // await authProvider.getPurchaseDetails(
-                          //     authProvider.listPurchases[index]);
-                          Navigator.of(context).pushNamed(
-                              AppRouteName.necDetails,
-                              arguments: authProvider.listPurchases[index]
-                                  ['id']);
-                        },
-                        title: Text(context
-                            .watch<AuthState>()
-                            .listPurchases[index]['name']),
-                        trailing: Icon(Icons.arrow_forward_ios_rounded),
-                      ),
-                    );
-                  },
-                ),
+                          title: Text(purch.listPurchases[index]['name']),
+                          trailing: const Icon(Icons.arrow_forward_ios_rounded),
+                        ),
+                      );
+                    },
+                  );
+                }),
               ),
             ),
           ),
@@ -158,7 +162,7 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
       floatingActionButton: FloatingActionButton(
         // mini: true,
         onPressed: addPurchaseDialog,
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     ));
   }
@@ -170,14 +174,14 @@ class _PurchasesListPageState extends State<PurchasesListPage> {
           return AddPuchaseWidget();
         });
     print(
-        'ПЕРЕХОД ПРИ СОЗДАНИИ В ID ${context.read<AuthState>().purchaseDetails['id']}');
+        'ПЕРЕХОД ПРИ СОЗДАНИИ В ID ${context.read<DetailsState>().purchaseDetails['id']}');
     Navigator.of(context).pushNamed(AppRouteName.necDetails,
-        arguments: context.read<AuthState>().purchaseDetails['id']);
+        arguments: context.read<DetailsState>().purchaseDetails['id']);
   }
 }
 
 class AddPuchaseWidget extends StatefulWidget {
-  AddPuchaseWidget({super.key});
+  const AddPuchaseWidget({super.key});
 
   @override
   State<AddPuchaseWidget> createState() => _AddPuchaseWidgetState();
@@ -199,24 +203,25 @@ class _AddPuchaseWidgetState extends State<AddPuchaseWidget> {
       backgroundColor: AppColor.orangeLight,
       content: Container(
         height: 300,
-        decoration: BoxDecoration(),
+        decoration: const BoxDecoration(),
         child:
             Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
           TextField(
             controller: nameController,
             cursorColor: AppColor.mainColor,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
                 border: OutlineInputBorder(), hintText: 'Название'),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              ElevatedButton(onPressed: addPurchase, child: Text('Добавить')),
+              ElevatedButton(
+                  onPressed: addPurchase, child: const Text('Добавить')),
               ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text('Отмена')),
+                  child: const Text('Отмена')),
             ],
           )
         ]),
@@ -224,9 +229,13 @@ class _AddPuchaseWidgetState extends State<AddPuchaseWidget> {
     );
   }
 
-  void addPurchase() {
-    final authProvider = context.read<AuthState>();
-    authProvider.addPurchase(nameController.text);
+  void addPurchase() async {
+    final purchasesProvider = context.read<PurchasesState>();
+    final detailsProvider = context.read<DetailsState>();
+    final currentUser = context.read<AuthState>().user;
+    final info =
+        await purchasesProvider.addPurchase(currentUser, nameController.text);
+    detailsProvider.setPurchaseDetails(currentUser, info);
     Navigator.of(context).pop();
   }
 }

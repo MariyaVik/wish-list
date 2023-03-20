@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:skillbox_17_8/ui/navigation/main_navigation.dart';
 
 import '../states/auth_state.dart';
+import 'navigation/main_navigation.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -19,11 +19,12 @@ class LoginPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
+                print('СЕЙЧАС БУДЕМ ВХОДИТЬ');
                 await authProvider.signInWithGoogle();
                 Navigator.of(context)
                     .pushReplacementNamed(AppRouteName.purList);
               },
-              child: Text('Войти через гугл'),
+              child: const Text('Войти через гугл'),
             )
           ],
         ),

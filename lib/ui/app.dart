@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../states/auth_state.dart';
-import '../models/necessary_details_model.dart';
+import '../states/details_state.dart';
+import '../states/purchases_state.dart';
 import 'navigation/main_navigation.dart';
 import 'theme/theme.dart';
 
@@ -13,9 +14,11 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<NecessaryDetailsModel>(
-            create: (context) => NecessaryDetailsModel()),
+        ChangeNotifierProvider<PurchasesState>(
+            create: (context) => PurchasesState()),
         ChangeNotifierProvider<AuthState>(create: (context) => AuthState()),
+        ChangeNotifierProvider<DetailsState>(
+            create: (context) => DetailsState()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
