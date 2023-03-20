@@ -16,9 +16,22 @@ class PurchasesListPage extends StatefulWidget {
 
 class _PurchasesListPageState extends State<PurchasesListPage> {
   final double avatarRadius = 40;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print('PurchasesListPage : INIT');
+  }
+
+  @override
+  void dispose() {
+    print('PurchasesListPage : DISPOSE');
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('PurchasesListPage : BUILD');
     final authProvider = context.read<AuthState>();
     print('на экрпне юзер ${authProvider.user?.displayName}');
     return SafeArea(

@@ -9,6 +9,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('LOGIN : BUILD');
     final authProvider = context.read<AuthState>();
     return SafeArea(
         child: Scaffold(

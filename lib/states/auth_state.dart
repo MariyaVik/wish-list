@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../models/filters.dart';
 import '../models/purchase.dart';
 import '../models/thing.dart';
 
@@ -13,6 +14,10 @@ class AuthState extends ChangeNotifier {
   User? user;
   List listPurchases = [];
   Map<String, dynamic> purchaseDetails = {};
+
+  List filtredThings = [];
+
+  Filter currentFilter = Filter.all;
 
   Future<void> signInWithGoogle() async {
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -102,6 +107,7 @@ class AuthState extends ChangeNotifier {
         'name': name,
         'things': [],
       };
+      filteringThings();
 
       purchaseDoc.set(purchaseDetails);
 
@@ -123,6 +129,7 @@ class AuthState extends ChangeNotifier {
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
           purchaseDetails = data;
+          filteringThings();
           print(purchaseDetails);
         },
         onError: (e) => print("Error getting document: $e"),
@@ -136,17 +143,22 @@ class AuthState extends ChangeNotifier {
 
   Future<void> addPurchaseDetails(Thing thing, int purchaseId) async {
     if (user != null) {
-      //   int currentId = 0;
-      //   if (listPurchases.isNotEmpty) {
-      //     currentId = listPurchases.last['id'] + 1;
-      //   }
+      int currentId = 0;
+      if (purchaseDetails['things'].isNotEmpty) {
+        currentId = purchaseDetails['things'].last['id'] + 1;
+      }
 
       purchaseDetails['things'].add({
+        'id': collectionUsers,
         'name': thing.name,
         'description': thing.description,
         'who': thing.who,
         'done': thing.done
       });
+      if (currentFilter == Filter.done) {
+        currentFilter = Filter.all;
+      }
+      filteringThings();
       final userDoc = collectionUsers
           .doc(user?.email)
           .collection('Purchases')
@@ -161,7 +173,12 @@ class AuthState extends ChangeNotifier {
   Future<void> deleteThing(int index) async {
     if (user != null) {
       final id = purchaseDetails['id'].toString();
-      purchaseDetails['things'].removeAt(index);
+      Map curThing = filtredThings[index];
+      print('ДЛЯ ПРОВЕРКИ' + purchaseDetails['things'].toString());
+
+      purchaseDetails['things'].remove(curThing);
+      print('ДЛЯ ПРОВЕРКИ' + purchaseDetails['things'].toString());
+      filteringThings();
       final purchaseDoc =
           collectionUsers.doc(user?.email).collection('Purchases').doc(id);
 
@@ -173,11 +190,19 @@ class AuthState extends ChangeNotifier {
     }
   }
 
-  Future<void> editThing(Thing thing, int thingIndex) async {
+  Future<void> editThing(Thing thing, int thingId) async {
     if (user != null) {
-      purchaseDetails['things'][thingIndex]['name'] = thing.name;
-      purchaseDetails['things'][thingIndex]['description'] = thing.description;
-      purchaseDetails['things'][thingIndex]['who'] = thing.who;
+      Map curThing = purchaseDetails['things']
+          .where((element) => element['id'] == thingId)
+          .toList()[0];
+
+      int index = purchaseDetails['things'].indexOf(curThing);
+
+      curThing['name'] = thing.name;
+      curThing['description'] = thing.description;
+      curThing['who'] = thing.who;
+
+      purchaseDetails['things'][index] = curThing;
 
       final id = purchaseDetails['id'].toString();
 
@@ -194,6 +219,8 @@ class AuthState extends ChangeNotifier {
     if (user != null) {
       purchaseDetails['things'][thingIndex]['done'] =
           !purchaseDetails['things'][thingIndex]['done'];
+
+      filteringThings();
 
       final id = purchaseDetails['id'].toString();
 
@@ -220,6 +247,32 @@ class AuthState extends ChangeNotifier {
 
       purchaseDoc.delete();
       userDoc.update({'purchases': listPurchases});
+
+      notifyListeners();
+    } else {
+      throw 'Войдите в аккаунт';
+    }
+  }
+
+  void filteringThings() {
+    if (user != null) {
+      switch (currentFilter) {
+        case Filter.all:
+          filtredThings = purchaseDetails['things'];
+          break;
+        case Filter.done:
+          filtredThings = purchaseDetails['things']
+              .where((element) => element['done'] == true)
+              .toList();
+          break;
+        case Filter.undone:
+          filtredThings = purchaseDetails['things']
+              .where((element) => element['done'] == false)
+              .toList();
+          break;
+        default:
+          filtredThings = purchaseDetails['things'];
+      }
 
       notifyListeners();
     } else {

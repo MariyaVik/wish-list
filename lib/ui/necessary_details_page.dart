@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:skillbox_17_8/models/thing.dart';
 import 'package:skillbox_17_8/ui/theme/theme.dart';
 
+import '../models/filters.dart';
 import '../states/auth_state.dart';
 
 class NecessaryDetailsPage extends StatefulWidget {
@@ -18,8 +19,14 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
   @override
   void initState() {
     super.initState();
-    context.read<AuthState>().purchaseDetails = {};
     context.read<AuthState>().getPurchaseDetails(widget.currentId);
+    print('NecessaryDetailsPage : INIT');
+  }
+
+  @override
+  void dispose() {
+    print('NecessaryDetailsPage : DISPOSE');
+    super.dispose();
   }
 
   @override
@@ -31,11 +38,57 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+            onPressed: () {
+              authProvider.currentFilter = Filter.all;
+              authProvider.filtredThings = [];
+              authProvider.purchaseDetails = {};
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back)),
         title: Text(context.watch<AuthState>().purchaseDetails['name'] ?? ''),
+        actions: [
+          PopupMenuButton(
+            icon: const Icon(Icons.filter_alt),
+            itemBuilder: (BuildContext context) => <PopupMenuItem<Filter>>[
+              PopupMenuItem(
+                value: Filter.all,
+                child: Text('Все'),
+                onTap: () {
+                  if (authProvider.currentFilter != Filter.all) {
+                    authProvider.currentFilter = Filter.all;
+                    authProvider.filteringThings();
+                  }
+                },
+              ),
+              PopupMenuItem(
+                value: Filter.done,
+                child: Text('Куплено'),
+                onTap: () {
+                  if (authProvider.currentFilter != Filter.done) {
+                    authProvider.currentFilter = Filter.done;
+                    authProvider.filteringThings();
+                  }
+                },
+              ),
+              PopupMenuItem(
+                value: Filter.undone,
+                child: Text('Нужно купить'),
+                onTap: () {
+                  if (authProvider.currentFilter != Filter.undone) {
+                    authProvider.currentFilter = Filter.undone;
+                    authProvider.filteringThings();
+                  }
+                },
+              ),
+            ],
+          )
+        ],
       ),
       body: ListView.builder(
-          itemCount:
-              context.watch<AuthState>().purchaseDetails['things']?.length ?? 0,
+          itemCount: context.watch<AuthState>().filtredThings.length,
+          // context.watch<AuthState>().purchaseDetails['things']?.length ?? 0,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
@@ -51,6 +104,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
+                        print('ДОЛЖНЫ ИЗМЕНИТЬ');
                         editThingDialog(index);
                       },
                       icon: Icons.edit,
@@ -62,6 +116,8 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                       //     topLeft: Radius.circular(8),
                       //     bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
+                        print('ДОЛЖНЫ УДАЛИТЬ');
+
                         authProvider.deleteThing(index);
                       },
                       icon: Icons.delete,
@@ -74,20 +130,18 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                       margin: EdgeInsets.symmetric(horizontal: 8),
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: context
-                                  .watch<AuthState>()
-                                  .purchaseDetails['things'][index]['done']
+                          color: context.watch<AuthState>().filtredThings[index]
+                                  ['done']
                               ? AppColor.green
                               : null,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(color: AppColor.greyLight)),
                       child: ListTile(
                         title: Text(
-                          context.watch<AuthState>().purchaseDetails['things']
-                              [index]['name'],
-                          style: context
-                                  .watch<AuthState>()
-                                  .purchaseDetails['things'][index]['done']
+                          context.watch<AuthState>().filtredThings[index]
+                              ['name'],
+                          style: context.watch<AuthState>().filtredThings[index]
+                                  ['done']
                               ? TextStyle(
                                   decoration: TextDecoration.lineThrough,
                                 )
@@ -95,17 +149,15 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
                         ),
                         subtitle: Text(context
                             .watch<AuthState>()
-                            .purchaseDetails['things'][index]['description']),
+                            .filtredThings[index]['description']),
                         trailing: CircleAvatar(
-                          child: context
-                                          .watch<AuthState>()
-                                          .purchaseDetails['things'][index]
+                          child: context.watch<AuthState>().filtredThings[index]
                                       ['who'] ==
                                   null
                               ? null
                               : Text(context
                                   .watch<AuthState>()
-                                  .purchaseDetails['things'][index]['who']),
+                                  .filtredThings[index]['who']),
                         ),
                       )),
                 ),
@@ -151,12 +203,15 @@ class _EditThingWidgetState extends State<EditThingWidget> {
   final TextEditingController commentController = TextEditingController();
 
   final TextEditingController whoController = TextEditingController();
+  int thingId = 0;
 
   @override
   void initState() {
     super.initState();
     final authProvider = context.read<AuthState>();
-    final thing = authProvider.purchaseDetails['things'][widget.index];
+
+    final thing = authProvider.filtredThings[widget.index];
+    thingId = thing['id'];
     nameController.text = thing['name'];
     commentController.text = thing['description'];
     whoController.text = thing['who'] ?? '';
@@ -219,7 +274,9 @@ class _EditThingWidgetState extends State<EditThingWidget> {
         name: nameController.text,
         description: commentController.text,
         who: whoController.text == '' ? null : whoController.text);
-    context.read<AuthState>().editThing(thing, widget.index);
+    context.read<AuthState>().editThing(thing, thingId);
+
+    print('ИЗМЕНИЛИ');
     Navigator.of(context).pop();
   }
 }
