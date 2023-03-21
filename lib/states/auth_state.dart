@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -32,8 +33,33 @@ class AuthState extends ChangeNotifier {
         user = us.user;
         print(user?.displayName);
         print('ВОШЛИ');
-        await saveUser(account);
+        await saveUser(user);
       }
+    } catch (e) {
+      print(e);
+    }
+    notifyListeners();
+  }
+
+  Future<void> signIn() async {
+    if (kIsWeb) {
+      await signInWithGoogleWeb();
+    } else {
+      await signInWithGoogle();
+    }
+  }
+
+  Future<void> signInWithGoogleWeb() async {
+    GoogleAuthProvider googleProvider = GoogleAuthProvider();
+    try {
+      googleProvider
+          .addScope('https://www.googleapis.com/auth/contacts.readonly');
+      googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
+      final us = await FirebaseAuth.instance.signInWithPopup(googleProvider);
+      user = us.user;
+      print(user?.displayName);
+      print('ВОШЛИ');
+      await saveUser(user);
     } catch (e) {
       print(e);
     }
@@ -48,17 +74,19 @@ class AuthState extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> saveUser(GoogleSignInAccount account) async {
-    final userDoc = collectionUsers.doc(account.email);
-    DocumentSnapshot doc = await userDoc.get();
-    if (!doc.exists) {
-      userDoc.set({
-        'email': account.email,
-        'name': account.displayName,
-        'photoUrl': account.photoUrl,
-        'purchases': []
-      });
-      print('СОХРАНИЛИ ЮЗЕРА');
+  Future<void> saveUser(User? user) async {
+    if (user != null) {
+      final userDoc = collectionUsers.doc(user.email);
+      DocumentSnapshot doc = await userDoc.get();
+      if (!doc.exists) {
+        userDoc.set({
+          'email': user.email,
+          'name': user.displayName,
+          'photoUrl': user.photoURL,
+          'purchases': []
+        });
+        print('СОХРАНИЛИ ЮЗЕРА');
+      }
     }
     notifyListeners();
   }

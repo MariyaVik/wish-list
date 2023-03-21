@@ -20,7 +20,7 @@ class LoginPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 print('СЕЙЧАС БУДЕМ ВХОДИТЬ');
-                await authProvider.signInWithGoogle();
+                await authProvider.signIn();
                 Navigator.of(context)
                     .pushReplacementNamed(AppRouteName.purList);
               },
