@@ -26,9 +26,8 @@ class DetailsState extends ChangeNotifier {
           final data = doc.data() as Map<String, dynamic>;
           purchaseDetails = data;
           filteringThings(user);
-          print(purchaseDetails);
         },
-        onError: (e) => print("Error getting document: $e"),
+        onError: (e) => throw 'Error getting document: $e',
       );
 
       notifyListeners();

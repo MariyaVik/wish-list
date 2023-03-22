@@ -7,7 +7,6 @@ class StorageState extends ChangeNotifier {
   Future<void> getImageUrl() async {
     try {
       imageUrl = await storage.ref('candy.png').getDownloadURL();
-      print('загрузили url');
       notifyListeners();
     } catch (error) {
       throw 'Something went wrong :(\n ${error.toString()}';

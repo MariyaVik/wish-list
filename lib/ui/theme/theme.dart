@@ -164,7 +164,7 @@ ChipThemeData _chipLight(ChipThemeData base) {
 
 InputDecorationTheme _inputDecorLight(InputDecorationTheme base) {
   return base.copyWith(
-    focusedBorder:
-        OutlineInputBorder(borderSide: BorderSide(color: AppColor.mainColor)),
+    focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: AppColor.mainColor)),
   );
 }

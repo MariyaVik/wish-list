@@ -61,9 +61,10 @@ class Head extends StatelessWidget {
                     IconButton(
                       onPressed: () async {
                         await authProvider.signOut();
-                        print('ВЫШЛИ');
-                        Navigator.of(context)
-                            .pushReplacementNamed(AppRouteName.login);
+                        if (context.mounted) {
+                          Navigator.of(context)
+                              .pushReplacementNamed(AppRouteName.login);
+                        }
                       },
                       icon: const Icon(
                         Icons.exit_to_app_outlined,

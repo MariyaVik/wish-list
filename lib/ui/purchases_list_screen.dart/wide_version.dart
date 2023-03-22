@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:html';
-import 'dart:ui' as ui;
+import 'image_phone.dart' if (dart.library.html) 'image_web.dart';
 
 import '../../states/auth_state.dart';
 import '../../states/details_state.dart';
 import '../../states/purchases_state.dart';
 import '../../states/storage_state.dart';
-import '../necessary_details_page.dart';
 import '../theme/theme.dart';
+import '../widgets/add_purchase_widget.dart';
+import '../widgets/add_thing_widget.dart';
 import '../widgets/filter_button.dart';
 import '../widgets/head.dart';
 import '../widgets/necessary_details_widget.dart';
 import '../widgets/purchases_list_widget.dart';
-import 'phone_version.dart';
 
 class PurchaseListPageWeb extends StatefulWidget {
-  PurchaseListPageWeb({Key? key}) : super(key: key);
+  const PurchaseListPageWeb({Key? key}) : super(key: key);
 
   @override
   State<PurchaseListPageWeb> createState() => _PurchaseListPageWebState();
 }
 
 class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
-  int? currentId;
+  // int? currentId;
 
   @override
   void initState() {
@@ -60,19 +59,21 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
             ),
           ),
         ),
-        Consumer<StorageState>(builder: (context, storage, _) {
+        Consumer2<StorageState, DetailsState>(
+            builder: (context, storage, details, _) {
           return Expanded(
               flex: 4,
-              child: currentId == null
+              child: details.purchaseDetails.isEmpty // НЕ РАБОТАЕТ :( почему?
                   ? storage.imageUrl == null
                       ? const SizedBox()
                       : Center(
                           child: Column(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox.square(dimension: 300, child: MyImage()),
-                            const SizedBox(height: 24),
-                            const Material(
+                          children: const [
+                            SizedBox.square(
+                                dimension: 300, child: NoSelectImage()),
+                            SizedBox(height: 24),
+                            Material(
                                 child: Text(
                                     'Выберите покупку или создайте новую')),
                           ],
@@ -82,20 +83,13 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
                       child: Scaffold(
                         appBar: AppBar(
                           automaticallyImplyLeading: false,
-                          title: Consumer<DetailsState>(
-                              builder: (context, details, _) {
-                            return Text(details.purchaseDetails['name'] ?? '');
-                          }),
-                          actions: [
+                          title: Text(details.purchaseDetails['name'] ?? ''),
+                          actions: const [
                             FilterButton(),
                           ],
                         ),
-                        body: Column(
-                          children: [
-                            Expanded(child: NecessaryDetailsWidget()),
-                          ],
-                        ),
-                        floatingActionButton: currentId == null
+                        body: const NecessaryDetailsWidget(),
+                        floatingActionButton: details.purchaseDetails.isEmpty
                             ? null
                             : FloatingActionButton(
                                 heroTag: null,
@@ -107,17 +101,10 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
         }),
       ],
     );
-    // floatingActionButton: FloatingActionButton(
-    //         onPressed: addThingDialog,
-    //         child: const Icon(Icons.add),
-    //       ),
-    // );
   }
 
   void onTap(BuildContext context, int index) {
-    print(
-        'id списка ${context.read<PurchasesState>().listPurchases[index]['id']} И ПОКАЗЫВАЕМ');
-    currentId = index;
+    // currentId = index;
     context.read<DetailsState>().getPurchaseDetails(
         context.read<AuthState>().user,
         context.read<PurchasesState>().listPurchases[index]['id']);
@@ -130,12 +117,12 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
         builder: (context) {
           return const AddPuchaseWidget();
         });
-    print(
-        'ПОКАЗ ПРИ СОЗДАНИИ ID ${context.read<DetailsState>().purchaseDetails['id']}');
-    context.read<DetailsState>().getPurchaseDetails(
-        context.read<AuthState>().user,
-        context.read<DetailsState>().purchaseDetails['id']); // НЕ РАБОТАЕТ
-    currentId = context.read<PurchasesState>().listPurchases.length - 1;
+    if (context.mounted) {
+      context.read<DetailsState>().getPurchaseDetails(
+          context.read<AuthState>().user,
+          context.read<DetailsState>().purchaseDetails['id']);
+      // currentId = context.read<PurchasesState>().listPurchases.length - 1;
+    }
     setState(() {});
   }
 
@@ -143,25 +130,7 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
     showDialog(
         context: context,
         builder: (context) {
-          return AddThingWidget();
+          return const AddThingWidget();
         });
-  }
-}
-
-class MyImage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    String imageUrl = context.read<StorageState>().imageUrl!;
-    // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(
-      imageUrl,
-      (int _) => ImageElement()
-        ..src = imageUrl
-        ..style.width = '100%'
-        ..style.height = '100%',
-    );
-    return HtmlElementView(
-      viewType: imageUrl,
-    );
   }
 }

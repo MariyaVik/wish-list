@@ -1,12 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-import '../models/filters.dart';
-import '../models/purchase.dart';
-import '../models/thing.dart';
 
 class AuthState extends ChangeNotifier {
   final FirebaseAuth authInst = FirebaseAuth.instance;
@@ -19,7 +14,6 @@ class AuthState extends ChangeNotifier {
 
     try {
       GoogleSignInAccount? account = await googleSignIn.signIn();
-      print(account?.email);
 
       if (account != null) {
         final GoogleSignInAuthentication auth = await account.authentication;
@@ -31,14 +25,12 @@ class AuthState extends ChangeNotifier {
 
         final us = await authInst.signInWithCredential(credential);
         user = us.user;
-        print(user?.displayName);
-        print('ВОШЛИ');
         await saveUser(user);
+        notifyListeners();
       }
     } catch (e) {
-      print(e);
+      throw 'Что-то пошло не так $e';
     }
-    notifyListeners();
   }
 
   Future<void> signIn() async {
@@ -57,13 +49,11 @@ class AuthState extends ChangeNotifier {
       googleProvider.setCustomParameters({'login_hint': 'user@example.com'});
       final us = await FirebaseAuth.instance.signInWithPopup(googleProvider);
       user = us.user;
-      print(user?.displayName);
-      print('ВОШЛИ');
       await saveUser(user);
+      notifyListeners();
     } catch (e) {
-      print(e);
+      throw 'Что-то пошло не так $e';
     }
-    notifyListeners();
   }
 
   Future<void> signOut() async {
@@ -85,7 +75,6 @@ class AuthState extends ChangeNotifier {
           'photoUrl': user.photoURL,
           'purchases': []
         });
-        print('СОХРАНИЛИ ЮЗЕРА');
       }
     }
     notifyListeners();

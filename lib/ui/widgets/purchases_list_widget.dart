@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:skillbox_17_8/states/details_state.dart';
 
 import '../../states/auth_state.dart';
 import '../../states/purchases_state.dart';
@@ -9,7 +10,7 @@ import '../theme/theme.dart';
 
 class PurchasesListWidget extends StatefulWidget {
   final void Function(int index) onPurchaseTap;
-  PurchasesListWidget({required this.onPurchaseTap, super.key});
+  const PurchasesListWidget({required this.onPurchaseTap, super.key});
 
   @override
   State<PurchasesListWidget> createState() => _PurchasesListWidgetState();
@@ -21,15 +22,8 @@ class _PurchasesListWidgetState extends State<PurchasesListWidget> {
   @override
   void initState() {
     super.initState();
-    print('PurchasesListWidget : INIT');
     currentUser = context.read<AuthState>().user;
     context.read<PurchasesState>().getPurchase(currentUser);
-  }
-
-  @override
-  void dispose() {
-    print('PurchasesListWidget : DISPOSE');
-    super.dispose();
   }
 
   @override
@@ -55,6 +49,7 @@ class _PurchasesListWidgetState extends State<PurchasesListWidget> {
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
+                        context.read<DetailsState>().purchaseDetails.clear();
                         purchasesProvider.deletePurchase(currentUser, index);
                       },
                       icon: Icons.delete,

@@ -14,10 +14,9 @@ class PurchasesState extends ChangeNotifier {
         (DocumentSnapshot doc) {
           final data = doc.data() as Map<String, dynamic>;
           listPurchases = data['purchases'];
-          print(listPurchases);
           notifyListeners();
         },
-        onError: (e) => print("Error getting document: $e"),
+        onError: (e) => throw 'Error getting document: $e',
       );
     } else {
       throw 'Войдите в аккаунт';

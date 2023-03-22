@@ -9,7 +9,6 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('LOGIN : BUILD');
     final authProvider = context.read<AuthState>();
     return SafeArea(
         child: Scaffold(
@@ -19,10 +18,11 @@ class LoginPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                print('СЕЙЧАС БУДЕМ ВХОДИТЬ');
                 await authProvider.signIn();
-                Navigator.of(context)
-                    .pushReplacementNamed(AppRouteName.purList);
+                if (context.mounted) {
+                  Navigator.of(context)
+                      .pushReplacementNamed(AppRouteName.purList);
+                }
               },
               child: const Text('Войти через гугл'),
             )

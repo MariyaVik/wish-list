@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../states/auth_state.dart';
 import '../../states/details_state.dart';
-import '../necessary_details_page.dart';
 import '../theme/theme.dart';
+import 'edit_thing_widget.dart';
 
 class NecessaryDetailsWidget extends StatelessWidget {
   const NecessaryDetailsWidget({super.key});
@@ -15,11 +15,9 @@ class NecessaryDetailsWidget extends StatelessWidget {
     return Consumer<DetailsState>(builder: (context, details, ch) {
       return ListView.builder(
           itemCount: details.filtredThings.length,
-          // context.watch<AuthState>().purchaseDetails['things']?.length ?? 0,
           itemBuilder: (context, index) {
             return GestureDetector(
               onTap: () {
-                print('ВЫПОЛНИЛИ ИЛИ НЕТ');
                 context
                     .read<DetailsState>()
                     .doneThing(context.read<AuthState>().user, index);
@@ -34,20 +32,13 @@ class NecessaryDetailsWidget extends StatelessWidget {
                           topLeft: Radius.circular(8),
                           bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        print('ДОЛЖНЫ ИЗМЕНИТЬ');
                         editThingDialog(context, index);
                       },
                       icon: Icons.edit,
                       backgroundColor: AppColor.orangeLight,
-                      // foregroundColor: Colors.white,
                     ),
                     SlidableAction(
-                      // borderRadius: BorderRadius.only(
-                      //     topLeft: Radius.circular(8),
-                      //     bottomLeft: Radius.circular(8)),
                       onPressed: (context) {
-                        print('ДОЛЖНЫ УДАЛИТЬ');
-
                         context
                             .read<DetailsState>()
                             .deleteThing(context.read<AuthState>().user, index);
