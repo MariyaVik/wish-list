@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../login_page.dart';
 import '../necessary_details_page.dart';
-import '../purchases_list_page.dart';
+import '../purchases_list_screen.dart/purchases_list_page.dart';
 
 abstract class AppRouteName {
   static const login = 'login';

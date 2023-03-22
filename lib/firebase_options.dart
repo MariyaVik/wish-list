@@ -67,6 +67,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '343924180473',
     projectId: 'wishlist-3fc39',
     storageBucket: 'wishlist-3fc39.appspot.com',
+    androidClientId: '343924180473-vujc8evl6qit5n5roccfdciejv16g7s8.apps.googleusercontent.com',
     iosClientId: '343924180473-ep4ddfadln8v50c0103h23emor1i77ki.apps.googleusercontent.com',
     iosBundleId: 'com.example.skillbox178',
   );
@@ -77,6 +78,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '343924180473',
     projectId: 'wishlist-3fc39',
     storageBucket: 'wishlist-3fc39.appspot.com',
+    androidClientId: '343924180473-vujc8evl6qit5n5roccfdciejv16g7s8.apps.googleusercontent.com',
     iosClientId: '343924180473-ep4ddfadln8v50c0103h23emor1i77ki.apps.googleusercontent.com',
     iosBundleId: 'com.example.skillbox178',
   );

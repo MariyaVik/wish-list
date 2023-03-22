@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 import '../models/filters.dart';
@@ -8,6 +7,8 @@ import '../models/thing.dart';
 import '../states/auth_state.dart';
 import '../states/details_state.dart';
 import 'theme/theme.dart';
+import 'widgets/filter_button.dart';
+import 'widgets/necessary_details_widget.dart';
 
 class NecessaryDetailsPage extends StatefulWidget {
   final int currentId;
@@ -57,116 +58,10 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
           return Text(details.purchaseDetails['name'] ?? '');
         }),
         actions: [
-          PopupMenuButton(
-            icon: const Icon(Icons.filter_alt),
-            itemBuilder: (BuildContext context) => <PopupMenuItem<Filter>>[
-              PopupMenuItem(
-                value: Filter.all,
-                child: const Text('Все'),
-                onTap: () {
-                  if (detailsProvider.currentFilter != Filter.all) {
-                    detailsProvider.currentFilter = Filter.all;
-                    detailsProvider.filteringThings(currentUser);
-                  }
-                },
-              ),
-              PopupMenuItem(
-                value: Filter.done,
-                child: const Text('Куплено'),
-                onTap: () {
-                  if (detailsProvider.currentFilter != Filter.done) {
-                    detailsProvider.currentFilter = Filter.done;
-                    detailsProvider.filteringThings(currentUser);
-                  }
-                },
-              ),
-              PopupMenuItem(
-                value: Filter.undone,
-                child: const Text('Нужно купить'),
-                onTap: () {
-                  if (detailsProvider.currentFilter != Filter.undone) {
-                    detailsProvider.currentFilter = Filter.undone;
-                    detailsProvider.filteringThings(currentUser);
-                  }
-                },
-              ),
-            ],
-          )
+          FilterButton(),
         ],
       ),
-      body: Consumer<DetailsState>(builder: (context, details, _) {
-        return ListView.builder(
-            itemCount: details.filtredThings.length,
-            // context.watch<AuthState>().purchaseDetails['things']?.length ?? 0,
-            itemBuilder: (context, index) {
-              return GestureDetector(
-                onTap: () {
-                  print('ВЫПОЛНИЛИ ИЛИ НЕТ');
-                  detailsProvider.doneThing(currentUser, index);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Slidable(
-                    endActionPane:
-                        ActionPane(motion: const StretchMotion(), children: [
-                      SlidableAction(
-                        borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(8),
-                            bottomLeft: Radius.circular(8)),
-                        onPressed: (context) {
-                          print('ДОЛЖНЫ ИЗМЕНИТЬ');
-                          editThingDialog(index);
-                        },
-                        icon: Icons.edit,
-                        backgroundColor: AppColor.orangeLight,
-                        // foregroundColor: Colors.white,
-                      ),
-                      SlidableAction(
-                        // borderRadius: BorderRadius.only(
-                        //     topLeft: Radius.circular(8),
-                        //     bottomLeft: Radius.circular(8)),
-                        onPressed: (context) {
-                          print('ДОЛЖНЫ УДАЛИТЬ');
-
-                          detailsProvider.deleteThing(currentUser, index);
-                        },
-                        icon: Icons.delete,
-                        backgroundColor: AppColor.error,
-                        foregroundColor: Colors.black,
-                      )
-                    ]),
-                    child: Container(
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                            color: details.filtredThings[index]['done']
-                                ? AppColor.green
-                                : null,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: AppColor.greyLight)),
-                        child: ListTile(
-                          title: Text(
-                            details.filtredThings[index]['name'],
-                            style: details.filtredThings[index]['done']
-                                ? const TextStyle(
-                                    decoration: TextDecoration.lineThrough,
-                                  )
-                                : null,
-                          ),
-                          subtitle:
-                              Text(details.filtredThings[index]['description']),
-                          trailing: CircleAvatar(
-                            child: details.filtredThings[index]['who'] == null
-                                ? null
-                                : Text(details.filtredThings[index]['who']),
-                          ),
-                        )),
-                  ),
-                ),
-              );
-            });
-      }),
+      body: NecessaryDetailsWidget(),
       floatingActionButton: FloatingActionButton(
         // mini: true,
         onPressed: addThingDialog,
@@ -180,14 +75,6 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
         context: context,
         builder: (context) {
           return AddThingWidget();
-        });
-  }
-
-  void editThingDialog(int index) {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return EditThingWidget(index: index);
         });
   }
 }

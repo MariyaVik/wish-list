@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "343924180473-lmcrbsq8heg21pqonjoadsun1icvn155.apps.googleusercontent.com",
+          "client_id": "343924180473-vujc8evl6qit5n5roccfdciejv16g7s8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.skillbox_17_8",
+            "certificate_hash": "0f865d9dddffca898d1c3909a2c948d51b5b6f07"
+          }
+        },
+        {
+          "client_id": "343924180473-cvl3let971st07j4gi87sb524gofuk63.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -27,8 +35,15 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "343924180473-lmcrbsq8heg21pqonjoadsun1icvn155.apps.googleusercontent.com",
+              "client_id": "343924180473-cvl3let971st07j4gi87sb524gofuk63.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "343924180473-ep4ddfadln8v50c0103h23emor1i77ki.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.skillbox178"
+              }
             }
           ]
         }

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../states/auth_state.dart';
 import '../states/details_state.dart';
 import '../states/purchases_state.dart';
+import '../states/storage_state.dart';
 import 'navigation/main_navigation.dart';
 import 'theme/theme.dart';
 
@@ -19,6 +20,8 @@ class App extends StatelessWidget {
         ChangeNotifierProvider<AuthState>(create: (context) => AuthState()),
         ChangeNotifierProvider<DetailsState>(
             create: (context) => DetailsState()),
+        ChangeNotifierProvider<StorageState>(
+            create: (context) => StorageState()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
