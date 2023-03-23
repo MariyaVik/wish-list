@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skillbox_17_8/states/purchases_state.dart';
 
 import '../../states/auth_state.dart';
 import '../navigation/main_navigation.dart';
@@ -60,6 +61,7 @@ class Head extends StatelessWidget {
                     ),
                     IconButton(
                       onPressed: () async {
+                        context.read<PurchasesState>().listPurchases.clear();
                         await authProvider.signOut();
                         if (context.mounted) {
                           Navigator.of(context)

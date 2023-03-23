@@ -14,8 +14,11 @@ class DetailsState extends ChangeNotifier {
 
   Filter currentFilter = Filter.all;
 
+  String? message;
+
   Future<void> getPurchaseDetails(User? user, int id) async {
     if (user != null) {
+      message = null;
       final purchaseDoc = collectionUsers
           .doc(user.email)
           .collection('Purchases')
@@ -131,8 +134,9 @@ class DetailsState extends ChangeNotifier {
 
   Future<void> doneThing(User? user, int thingIndex) async {
     if (user != null) {
-      purchaseDetails['things'][thingIndex]['done'] =
-          !purchaseDetails['things'][thingIndex]['done'];
+      filtredThings[thingIndex]['done'] = !filtredThings[thingIndex]['done'];
+      int index = purchaseDetails['things'].indexOf(filtredThings[thingIndex]);
+      purchaseDetails['things'][index] = filtredThings[thingIndex];
 
       filteringThings(user);
 
@@ -152,19 +156,23 @@ class DetailsState extends ChangeNotifier {
       switch (currentFilter) {
         case Filter.all:
           filtredThings = purchaseDetails['things'];
+          message = filtredThings.isEmpty ? 'Добавьте желаемое' : '';
           break;
         case Filter.done:
           filtredThings = purchaseDetails['things']
               .where((element) => element['done'] == true)
               .toList();
+          message = filtredThings.isEmpty ? 'Ещё ничего не купили' : '';
           break;
         case Filter.undone:
           filtredThings = purchaseDetails['things']
               .where((element) => element['done'] == false)
               .toList();
+          message = filtredThings.isEmpty ? 'Куплено всё необходимое' : '';
           break;
         default:
           filtredThings = purchaseDetails['things'];
+          message = filtredThings.isEmpty ? 'Добавьте желаемое' : '';
       }
 
       notifyListeners();

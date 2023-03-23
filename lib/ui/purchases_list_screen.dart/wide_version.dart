@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../widgets/add_thing_button.dart';
 import 'image_phone.dart' if (dart.library.html) 'image_web.dart';
 
 import '../../states/auth_state.dart';
 import '../../states/details_state.dart';
 import '../../states/purchases_state.dart';
 import '../../states/storage_state.dart';
-import '../theme/theme.dart';
 import '../widgets/add_purchase_widget.dart';
-import '../widgets/add_thing_widget.dart';
 import '../widgets/filter_button.dart';
-import '../widgets/head.dart';
 import '../widgets/necessary_details_widget.dart';
-import '../widgets/purchases_list_widget.dart';
+import 'main_view.dart';
 
 class PurchaseListPageWeb extends StatefulWidget {
   const PurchaseListPageWeb({Key? key}) : super(key: key);
@@ -38,26 +36,7 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
       children: [
         Expanded(
           flex: 2,
-          child: Scaffold(
-            backgroundColor: AppColor.mainColor,
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
-            body: Column(
-              children: [
-                const Head(),
-                PurchasesListWidget(onPurchaseTap: (index) {
-                  onTap(context, index);
-                }),
-              ],
-            ),
-            floatingActionButton: FloatingActionButton(
-              heroTag: null,
-              onPressed: () {
-                addPurchaseDialog();
-              },
-              child: const Icon(Icons.add),
-            ),
-          ),
+          child: MainPage(onPurchaseTap: onTap, addPurchase: addPurchaseDialog),
         ),
         Consumer2<StorageState, DetailsState>(
             builder: (context, storage, details, _) {
@@ -81,22 +60,17 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
                   : ColoredBox(
                       color: Colors.white,
                       child: Scaffold(
-                        appBar: AppBar(
-                          automaticallyImplyLeading: false,
-                          title: Text(details.purchaseDetails['name'] ?? ''),
-                          actions: const [
-                            FilterButton(),
-                          ],
-                        ),
-                        body: const NecessaryDetailsWidget(),
-                        floatingActionButton: details.purchaseDetails.isEmpty
-                            ? null
-                            : FloatingActionButton(
-                                heroTag: null,
-                                onPressed: addThingDialog,
-                                child: const Icon(Icons.add),
-                              ),
-                      ),
+                          appBar: AppBar(
+                            automaticallyImplyLeading: false,
+                            title: Text(details.purchaseDetails['name'] ?? ''),
+                            actions: const [
+                              FilterButton(),
+                            ],
+                          ),
+                          body: const NecessaryDetailsWidget(),
+                          floatingActionButton: details.purchaseDetails.isEmpty
+                              ? null
+                              : const AddThingButton()),
                     ));
         }),
       ],
@@ -111,7 +85,7 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
     setState(() {});
   }
 
-  void addPurchaseDialog() async {
+  void addPurchaseDialog(BuildContext context) async {
     await showDialog(
         context: context,
         builder: (context) {
@@ -124,13 +98,5 @@ class _PurchaseListPageWebState extends State<PurchaseListPageWeb> {
       // currentId = context.read<PurchasesState>().listPurchases.length - 1;
     }
     setState(() {});
-  }
-
-  void addThingDialog() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const AddThingWidget();
-        });
   }
 }

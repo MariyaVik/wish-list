@@ -6,14 +6,20 @@ class PurchasesState extends ChangeNotifier {
   final CollectionReference collectionUsers =
       FirebaseFirestore.instance.collection('users');
   List listPurchases = [];
+  String? message;
 
   Future<void> getPurchase(User? user) async {
     if (user != null) {
+      message = null;
       final userDoc = collectionUsers.doc(user.email);
       userDoc.get().then(
         (DocumentSnapshot doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          listPurchases = data['purchases'];
+          print(doc.data().toString());
+          if (doc.data() != null) {
+            final data = doc.data() as Map<String, dynamic>;
+            listPurchases = data['purchases'];
+            message = listPurchases.isEmpty ? 'Добавьте список' : '';
+          }
           notifyListeners();
         },
         onError: (e) => throw 'Error getting document: $e',
@@ -33,6 +39,7 @@ class PurchasesState extends ChangeNotifier {
       listPurchases.add({'id': currentId, 'name': name});
       final userDoc = collectionUsers.doc(user.email);
       userDoc.update({'purchases': listPurchases});
+      message = '';
 
       notifyListeners();
       return {'id': currentId, 'name': name};
@@ -46,6 +53,7 @@ class PurchasesState extends ChangeNotifier {
       int id = listPurchases[index]['id'];
 
       listPurchases.removeWhere((element) => element['id'] == id);
+      if (listPurchases.isEmpty) message = 'Добавьте список';
 
       final userDoc = collectionUsers.doc(user.email);
       final purchaseDoc = collectionUsers

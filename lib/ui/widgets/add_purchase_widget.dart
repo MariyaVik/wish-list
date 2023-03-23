@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../states/auth_state.dart';
 import '../../states/details_state.dart';
 import '../../states/purchases_state.dart';
+import '../navigation/main_navigation.dart';
 import '../theme/theme.dart';
 
 class AddPuchaseWidget extends StatefulWidget {
@@ -62,6 +63,8 @@ class _AddPuchaseWidgetState extends State<AddPuchaseWidget> {
     final info =
         await purchasesProvider.addPurchase(currentUser, nameController.text);
     detailsProvider.setPurchaseDetails(currentUser, info);
-    if (context.mounted) Navigator.of(context).pop();
+    if (context.mounted) {
+      Navigator.of(context).pop();
+    }
   }
 }

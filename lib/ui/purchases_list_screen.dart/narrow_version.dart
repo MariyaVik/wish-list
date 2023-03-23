@@ -4,35 +4,15 @@ import 'package:provider/provider.dart';
 import '../../states/details_state.dart';
 import '../../states/purchases_state.dart';
 import '../navigation/main_navigation.dart';
-import '../theme/theme.dart';
 import '../widgets/add_purchase_widget.dart';
-import '../widgets/head.dart';
-import '../widgets/purchases_list_widget.dart';
+import 'main_view.dart';
 
 class PurchaseListPagePhone extends StatelessWidget {
   const PurchaseListPagePhone({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterDocked,
-      backgroundColor: AppColor.mainColor,
-      body: Column(
-        children: [
-          const Head(),
-          PurchasesListWidget(onPurchaseTap: (index) {
-            onTap(context, index);
-          }),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          addPurchaseDialog(context);
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
+    return MainPage(onPurchaseTap: onTap, addPurchase: addPurchaseDialog);
   }
 
   void onTap(BuildContext context, int index) {

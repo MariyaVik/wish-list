@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../models/filters.dart';
 import '../states/auth_state.dart';
 import '../states/details_state.dart';
+import 'widgets/add_thing_button.dart';
 import 'widgets/add_thing_widget.dart';
 import 'widgets/filter_button.dart';
 import 'widgets/necessary_details_widget.dart';
@@ -33,8 +34,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
     final detailsProvider = context.read<DetailsState>();
     return SafeArea(
         child: Scaffold(
-      floatingActionButtonLocation:
-          FloatingActionButtonLocation.miniCenterDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         leading: IconButton(
@@ -53,18 +53,7 @@ class _NecessaryDetailsPageState extends State<NecessaryDetailsPage> {
         ],
       ),
       body: const NecessaryDetailsWidget(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: addThingDialog,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: const AddThingButton(),
     ));
-  }
-
-  void addThingDialog() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return const AddThingWidget();
-        });
   }
 }
